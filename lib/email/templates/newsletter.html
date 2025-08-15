@@ -1,0 +1,23 @@
+<div class="header">
+  <h1>{{appName}} Newsletter</h1>
+</div>
+
+<h2>{{title}}</h2>
+
+<p>{{content}}</p>
+
+{{#if articles}}
+<h3>Latest Articles</h3>
+{{#each articles}}
+<div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+  <h4>{{this.title}}</h4>
+  <p>{{this.excerpt}}</p>
+  <a href="{{this.link}}" class="button">Read More</a>
+</div>
+{{/each}}
+{{/if}}
+
+<p style="color: #666666; font-size: 14px;">
+  You're receiving this because you subscribed to our newsletter. 
+  <a href="{{unsubscribeLink}}">Unsubscribe</a>
+</p>

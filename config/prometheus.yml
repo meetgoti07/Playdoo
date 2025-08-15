@@ -1,0 +1,15 @@
+# Configuration for scraping metrics from different targets
+scrape_configs:
+  # Job for collecting metrics from Next.js application through Nginx reverse proxy
+  - job_name: 'odoofinal'
+    # Static list of target endpoints to scrape
+    static_configs:
+      # Scrape through Nginx reverse proxy (HTTPS)
+      - targets: ['nginx:443']
+    # Path where metrics endpoint is exposed in the Next.js app
+    metrics_path: '/api/metrics'
+    # Configure for HTTPS scraping
+    scheme: https
+    # Skip SSL verification for self-signed certificates
+    tls_config:
+      insecure_skip_verify: true

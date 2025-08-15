@@ -1,0 +1,90 @@
+# Dockerfile.prod - Optimized for dependency caching
+
+# 1. Base Stage: Use a specific Node.js version on a lean OS
+FROM node:22-alpine AS base
+WORKDIR /app
+# Install PostgreSQL client for database connectivity
+RUN apk add --no-cache postgresql-client curl
+
+# 2. Dependencies Stage: Install dependencies with proper caching
+FROM base AS deps
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy package files first for better layer caching
+COPY package.json pnpm-lock.yaml* ./
+
+# Install dependencies - this layer will be cached unless package files change
+RUN pnpm install --frozen-lockfile
+
+# 3. Builder Stage: Build the application
+FROM base AS builder
+WORKDIR /app
+
+# Install pnpm in builder stage
+RUN npm install -g pnpm
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./package.json
+COPY --from=deps /app/pnpm-lock.yaml* ./
+
+# Copy source code
+COPY . .
+
+# Disable Next.js telemetry
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the application
+RUN pnpm build
+
+# 4. Production Stage: Create optimized runtime image
+FROM base AS production
+WORKDIR /app
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Install pnpm for production
+RUN npm install -g pnpm
+
+# Copy package files
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-lock.yaml* ./
+
+# Install only production dependencies
+COPY --from=deps /app/node_modules ./node_modules
+RUN pnpm prune --prod
+
+# Copy built application with proper ownership
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Copy necessary runtime files
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./
+COPY --from=builder --chown=nextjs:nodejs /app/lib ./lib
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+
+# Make scripts executable
+RUN chmod +x /app/scripts/*.sh
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Start the application
+CMD ["/bin/sh", "/app/scripts/prod-start.sh"]

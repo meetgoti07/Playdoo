@@ -1,0 +1,19 @@
+<div class="header">
+  <h1>{{appName}}</h1>
+</div>
+
+<h2>{{title}}</h2>
+
+<p>{{message}}</p>
+
+{{#if actionLink}}
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{actionLink}}" class="button">{{actionText}}</a>
+</p>
+{{/if}}
+
+{{#if additionalInfo}}
+<p style="color: #666666;">
+  {{additionalInfo}}
+</p>
+{{/if}}

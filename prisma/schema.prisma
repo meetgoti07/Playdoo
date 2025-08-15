@@ -1,0 +1,763 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  name                 String
+  email                String               @unique
+  emailVerified        Boolean              @default(false)
+  image                String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  banned               Boolean?             @default(false)
+  banReason            String?
+  banExpires           DateTime?
+  city                 String?
+  country              String?
+  dateOfBirth          DateTime?
+  gender               String?
+  isPhoneVerified      Boolean?             @default(false)
+  phone                String?
+  state                String?
+  status               UserStatus           @default(ACTIVE)
+  id                   String               @id @default(cuid())
+  role                 UserRole?            @default(user)
+  hashId               Int                  @unique @default(autoincrement())
+  stripeCustomerId     String?
+  accounts             Account[]
+  activityLogs         ActivityLog[]
+  bookings             Booking[]
+  facilities           Facility[]
+  notifications        Notification[]
+  reports              Report[]             @relation("ReportedBy")
+  reportedReports      Report[]             @relation("ReportedUser")
+  reviews              Review[]
+  supportTicketReplies SupportTicketReply[]
+  supportTickets       SupportTicket[]
+  userProfile          UserProfile?
+
+  @@index([email])
+  @@index([hashId])
+  @@index([role])
+  @@index([status])
+  @@map("user")
+}
+
+model Account {
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  userId                String
+  hashId                Int       @unique @default(autoincrement())
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([hashId])
+  @@map("account")
+}
+
+model Verification {
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  id         String   @id @default(cuid())
+  hashId     Int      @unique @default(autoincrement())
+
+  @@index([id])
+  @@index([identifier])
+  @@map("verification")
+}
+
+model RateLimit {
+  key         String?
+  count       Int?
+  lastRequest BigInt?
+  id          String  @id @default(cuid())
+  hashId      Int     @unique @default(autoincrement())
+
+  @@index([id])
+  @@index([key])
+  @@map("rateLimit")
+}
+
+model UserProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  fullName           String?
+  avatar             String?
+  bio                String?
+  preferredSports    String   @default("")
+  maxDistance        Int?
+  priceRangeMin      Float?
+  priceRangeMax      Float?
+  emailNotifications Boolean  @default(true)
+  smsNotifications   Boolean  @default(false)
+  pushNotifications  Boolean  @default(true)
+  emergencyContact   String?
+  emergencyPhone     String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  hashId             Int      @unique @default(autoincrement())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([id])
+  @@index([userId])
+  @@map("user_profiles")
+}
+
+model Facility {
+  id                String              @id @default(cuid())
+  ownerId           String
+  name              String
+  description       String?
+  address           String
+  city              String
+  state             String
+  country           String              @default("India")
+  pincode           String
+  latitude          Float?
+  longitude         Float?
+  phone             String
+  email             String?
+  website           String?
+  status            FacilityStatus      @default(PENDING)
+  venueType         VenueType
+  rating            Float?              @default(0)
+  totalReviews      Int                 @default(0)
+  isActive          Boolean             @default(true)
+  approvedAt        DateTime?
+  rejectedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  hashId            Int                 @unique @default(autoincrement())
+  bookings          Booking[]
+  courts            Court[]
+  owner             User                @relation(fields: [ownerId], references: [id])
+  amenities         FacilityAmenity[]
+  facilityAnalytics FacilityAnalytics[]
+  photos            FacilityPhoto[]
+  operatingHours    OperatingHour[]
+  reports           Report[]            @relation("ReportedFacility")
+  reviews           Review[]
+
+  @@index([id])
+  @@index([ownerId, status])
+  @@index([city, isActive])
+  @@index([status])
+  @@index([venueType])
+  @@map("facilities")
+}
+
+model Court {
+  id           String        @id @default(cuid())
+  facilityId   String
+  name         String
+  sportType    SportType
+  description  String?
+  pricePerHour Float
+  isActive     Boolean       @default(true)
+  capacity     Int?
+  length       Float?
+  width        Float?
+  surface      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  hashId       Int           @unique @default(autoincrement())
+  bookings     Booking[]
+  facility     Facility      @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  maintenance  Maintenance[]
+  timeSlots    TimeSlot[]
+
+  @@index([id])
+  @@index([sportType, isActive])
+  @@index([facilityId, isActive])
+  @@index([facilityId])
+  @@map("courts")
+}
+
+model TimeSlot {
+  id          String   @id @default(cuid())
+  courtId     String
+  date        DateTime @db.Date
+  startTime   DateTime @db.Time(6)
+  endTime     DateTime @db.Time(6)
+  isBlocked   Boolean  @default(false)
+  blockReason String?
+  isBooked    Boolean  @default(false)
+  price       Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  hashId      Int      @unique @default(autoincrement())
+  booking     Booking?
+  court       Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  @@unique([courtId, date, startTime])
+  @@index([id])
+  @@index([courtId, date, startTime])
+  @@index([date, isBlocked, isBooked])
+  @@index([courtId])
+  @@map("time_slots")
+}
+
+model Booking {
+  id                 String          @id @default(cuid())
+  userId             String
+  facilityId         String
+  courtId            String
+  timeSlotId         String          @unique
+  bookingDate        DateTime        @db.Date
+  startTime          DateTime        @db.Time(6)
+  endTime            DateTime        @db.Time(6)
+  totalHours         Float
+  pricePerHour       Float
+  totalAmount        Float
+  platformFee        Float           @default(0)
+  tax                Float           @default(0)
+  finalAmount        Float
+  status             BookingStatus   @default(PENDING)
+  specialRequests    String?
+  cancellationReason String?
+  cancelledAt        DateTime?
+  confirmedAt        DateTime?
+  completedAt        DateTime?
+  noShowAt           DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  hashId             Int             @unique @default(autoincrement())
+  bookingCoupons     BookingCoupon[]
+  court              Court           @relation(fields: [courtId], references: [id])
+  facility           Facility        @relation(fields: [facilityId], references: [id])
+  timeSlot           TimeSlot        @relation(fields: [timeSlotId], references: [id])
+  user               User            @relation(fields: [userId], references: [id])
+  payment            Payment?
+  review             Review?
+
+  @@index([id])
+  @@index([userId, status])
+  @@index([facilityId, bookingDate])
+  @@index([status])
+  @@index([bookingDate])
+  @@map("bookings")
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  bookingId        String        @unique
+  amount           Float
+  platformFee      Float
+  tax              Float
+  totalAmount      Float
+  paymentMethod    PaymentMethod
+  paymentGateway   String?
+  transactionId    String?       @unique
+  gatewayOrderId   String?
+  gatewayPaymentId String?
+  status           PaymentStatus @default(PENDING)
+  failureReason    String?
+  refundAmount     Float?
+  refundedAt       DateTime?
+  paidAt           DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  hashId           Int           @unique @default(autoincrement())
+  booking          Booking       @relation(fields: [bookingId], references: [id])
+
+  @@index([hashId])
+  @@index([status])
+  @@index([transactionId])
+  @@index([bookingId])
+  @@map("payments")
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  userId     String
+  facilityId String
+  bookingId  String   @unique
+  rating     Int
+  comment    String?
+  isApproved Boolean  @default(true)
+  isHidden   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  hashId     Int      @unique @default(autoincrement())
+  booking    Booking  @relation(fields: [bookingId], references: [id])
+  facility   Facility @relation(fields: [facilityId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([hashId])
+  @@index([facilityId, isApproved])
+  @@index([userId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+model Amenity {
+  id          String            @id @default(cuid())
+  name        String            @unique
+  description String?
+  icon        String?
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  hashId      Int               @unique @default(autoincrement())
+  facilities  FacilityAmenity[]
+
+  @@index([hashId])
+  @@index([name])
+  @@index([isActive])
+  @@map("amenities")
+}
+
+model FacilityAmenity {
+  id         String   @id @default(cuid())
+  facilityId String
+  amenityId  String
+  createdAt  DateTime @default(now())
+  hashId     Int      @unique @default(autoincrement())
+  amenity    Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+  facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([facilityId, amenityId])
+  @@index([hashId])
+  @@index([facilityId])
+  @@index([amenityId])
+  @@map("facility_amenities")
+}
+
+model FacilityPhoto {
+  id         String   @id @default(cuid())
+  facilityId String
+  url        String
+  caption    String?
+  isPrimary  Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  hashId     Int      @unique @default(autoincrement())
+  facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@index([id])
+  @@index([facilityId])
+  @@index([isPrimary])
+  @@map("facility_photos")
+}
+
+model OperatingHour {
+  id         String   @id @default(cuid())
+  facilityId String
+  dayOfWeek  Int
+  openTime   String
+  closeTime  String
+  isClosed   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  hashId     Int      @unique @default(autoincrement())
+  facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([facilityId, dayOfWeek])
+  @@index([hashId])
+  @@index([facilityId])
+  @@map("operating_hours")
+}
+
+model Maintenance {
+  id          String   @id @default(cuid())
+  courtId     String
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  hashId      Int      @unique @default(autoincrement())
+  court       Court    @relation(fields: [courtId], references: [id], onDelete: Cascade)
+
+  @@index([hashId])
+  @@index([courtId])
+  @@index([startDate, endDate])
+  @@map("maintenance")
+}
+
+model Report {
+  id                 String       @id @default(cuid())
+  reportedById       String
+  reportedUserId     String?
+  reportedFacilityId String?
+  type               ReportType
+  title              String
+  description        String
+  status             ReportStatus @default(PENDING)
+  adminNotes         String?
+  resolvedAt         DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  hashId             Int          @unique @default(autoincrement())
+  reportedBy         User         @relation("ReportedBy", fields: [reportedById], references: [id])
+  reportedFacility   Facility?    @relation("ReportedFacility", fields: [reportedFacilityId], references: [id])
+  reportedUser       User?        @relation("ReportedUser", fields: [reportedUserId], references: [id])
+
+  @@index([hashId])
+  @@index([status, createdAt])
+  @@index([reportedById])
+  @@index([type])
+  @@map("reports")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  hashId    Int              @unique @default(autoincrement())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([hashId])
+  @@index([userId, type, isRead])
+  @@index([userId])
+  @@index([type])
+  @@map("notifications")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  hashId    Int      @unique @default(autoincrement())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([hashId])
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  dataType  String   @default("string")
+  category  String   @default("general")
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  hashId    Int      @unique @default(autoincrement())
+
+  @@index([hashId])
+  @@index([key])
+  @@index([category])
+  @@map("system_settings")
+}
+
+model Banner {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String
+  linkUrl     String?
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  targetRole  UserRole?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  hashId      Int       @unique @default(autoincrement())
+
+  @@index([hashId])
+  @@index([isActive])
+  @@index([sortOrder])
+  @@map("banners")
+}
+
+model BookingAnalytics {
+  id              String     @id @default(cuid())
+  date            DateTime   @unique @db.Date
+  totalBookings   Int        @default(0)
+  totalRevenue    Float      @default(0)
+  totalUsers      Int        @default(0)
+  totalFacilities Int        @default(0)
+  popularSport    SportType?
+  peakHour        Int?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  hashId          Int        @unique @default(autoincrement())
+
+  @@index([hashId])
+  @@index([date])
+  @@index([totalRevenue])
+  @@map("booking_analytics")
+}
+
+model FacilityAnalytics {
+  id            String   @id @default(cuid())
+  facilityId    String
+  date          DateTime @db.Date
+  totalBookings Int      @default(0)
+  totalRevenue  Float    @default(0)
+  uniqueUsers   Int      @default(0)
+  averageRating Float?
+  occupancyRate Float    @default(0)
+  peakHour      Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  hashId        Int      @unique @default(autoincrement())
+  facility      Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@unique([facilityId, date])
+  @@index([hashId])
+  @@index([facilityId])
+  @@index([date])
+  @@map("facility_analytics")
+}
+
+model Coupon {
+  id                String          @id @default(cuid())
+  code              String          @unique
+  name              String
+  description       String?
+  discountType      String
+  discountValue     Float
+  minBookingAmount  Float?
+  maxDiscountAmount Float?
+  usageLimit        Int?
+  userUsageLimit    Int?
+  currentUsage      Int             @default(0)
+  isActive          Boolean         @default(true)
+  validFrom         DateTime
+  validUntil        DateTime
+  applicableSports  String          @default("")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  hashId            Int             @unique @default(autoincrement())
+  bookingCoupons    BookingCoupon[]
+
+  @@index([hashId])
+  @@index([code, isActive, validFrom, validUntil])
+  @@index([code])
+  @@index([isActive])
+  @@map("coupons")
+}
+
+model BookingCoupon {
+  id             String   @id @default(cuid())
+  bookingId      String
+  couponId       String
+  discountAmount Float
+  createdAt      DateTime @default(now())
+  hashId         Int      @unique @default(autoincrement())
+  booking        Booking  @relation(fields: [bookingId], references: [id])
+  coupon         Coupon   @relation(fields: [couponId], references: [id])
+
+  @@unique([bookingId, couponId])
+  @@index([hashId])
+  @@index([bookingId])
+  @@index([couponId])
+  @@map("booking_coupons")
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String
+  state     String
+  country   String   @default("India")
+  latitude  Float?
+  longitude Float?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  hashId    Int      @unique @default(autoincrement())
+
+  @@unique([name, state, country])
+  @@index([hashId])
+  @@index([name])
+  @@index([state])
+  @@index([isActive])
+  @@map("cities")
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  hashId    Int      @unique @default(autoincrement())
+
+  @@index([hashId])
+  @@index([category])
+  @@index([isActive])
+  @@map("faqs")
+}
+
+model SupportTicket {
+  id         String               @id @default(cuid())
+  userId     String?
+  email      String
+  subject    String
+  message    String
+  status     String               @default("OPEN")
+  priority   String               @default("MEDIUM")
+  assignedTo String?
+  resolvedAt DateTime?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  hashId     Int                  @unique @default(autoincrement())
+  replies    SupportTicketReply[]
+  user       User?                @relation(fields: [userId], references: [id])
+
+  @@index([hashId])
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@map("support_tickets")
+}
+
+model SupportTicketReply {
+  id              String        @id @default(cuid())
+  hashId          Int           @unique @default(autoincrement())
+  supportTicketId String
+  userId          String?
+  authorType      String        @default("USER")
+  message         String
+  attachments     Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  supportTicket   SupportTicket @relation(fields: [supportTicketId], references: [id], onDelete: Cascade)
+  user            User?         @relation(fields: [userId], references: [id])
+
+  @@index([hashId])
+  @@index([supportTicketId])
+  @@index([userId])
+  @@index([authorType])
+  @@map("support_ticket_replies")
+}
+
+enum UserRole {
+  user
+  facility_owner
+  admin
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+  PENDING_VERIFICATION
+}
+
+enum FacilityStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum SportType {
+  BADMINTON
+  TENNIS
+  FOOTBALL
+  BASKETBALL
+  CRICKET
+  SQUASH
+  TABLE_TENNIS
+  VOLLEYBALL
+  SWIMMING
+  GYM
+  OTHER
+}
+
+enum VenueType {
+  INDOOR
+  OUTDOOR
+  HYBRID
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  UPI
+  NET_BANKING
+  WALLET
+  CASH
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum ReportType {
+  FACILITY_ISSUE
+  USER_BEHAVIOR
+  PAYMENT_ISSUE
+  SAFETY_CONCERN
+  SPAM
+  OTHER
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMATION
+  BOOKING_CANCELLATION
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  FACILITY_APPROVED
+  FACILITY_REJECTED
+  MAINTENANCE_ALERT
+  PROMOTIONAL
+  SYSTEM_UPDATE
+}

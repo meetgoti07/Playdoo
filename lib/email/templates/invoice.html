@@ -1,0 +1,47 @@
+<div class="header">
+  <h1>Invoice {{invoiceNumber}} - {{appName}}</h1>
+</div>
+
+<h2>Hi {{customerName}},</h2>
+
+<p>Thank you for your business! Please find your invoice details below:</p>
+
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 4px; margin: 20px 0;">
+  <h3>Invoice Details</h3>
+  <p><strong>Invoice Number:</strong> {{invoiceNumber}}</p>
+  <p><strong>Date:</strong> {{invoiceDate}}</p>
+  <p><strong>Due Date:</strong> {{dueDate}}</p>
+  <p><strong>Amount:</strong> {{amount}}</p>
+</div>
+
+{{#if items}}
+<h3>Items</h3>
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+  <thead>
+    <tr style="background-color: #f8f9fa;">
+      <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Description</th>
+      <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Quantity</th>
+      <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Price</th>
+      <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each items}}
+    <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">{{this.description}}</td>
+      <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">{{this.quantity}}</td>
+      <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">{{this.price}}</td>
+      <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">{{this.total}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+{{/if}}
+
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{paymentLink}}" class="button">Pay Now</a>
+</p>
+
+<p style="color: #666666; font-size: 14px;">
+  If you have any questions about this invoice, please contact us.
+</p>
