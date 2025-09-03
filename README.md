@@ -1,7 +1,4 @@
-# Playdoo - Sports Facility Booking Platform
-
-> **Watch the Demo:**  
-> [![YouTube Video](https://img.shields.io/badge/Watch%20on-YouTube-red?logo=youtube)](https://youtu.be/2OSK_EYY56Q)
+# Playdoo - Sports Facility Booking Platform: Odoo Hackathon 2025 Runners Up
 
 [https://youtu.be/2OSK_EYY56Q](https://youtu.be/2OSK_EYY56Q)
 
