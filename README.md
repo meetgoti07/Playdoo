@@ -7,7 +7,7 @@
 
 Playdoo is a comprehensive sports facility booking platform that connects facility owners with users looking to book sports venues. The platform provides robust analytics, user management, and booking capabilities with AI-powered fraud detection.
 
-## 🚀 Features
+## Features
 
 ### For Users
 
@@ -37,7 +37,7 @@ Playdoo is a comprehensive sports facility booking platform that connects facili
 - **Report System**: User and facility reporting capabilities
 - **CCTV Integration**: Security monitoring features
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 
@@ -73,7 +73,7 @@ Playdoo is a comprehensive sports facility booking platform that connects facili
 - **pnpm** - Package manager
 - **Swagger** - API documentation
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 playdoo/
@@ -99,7 +99,7 @@ playdoo/
 └── public/                      # Static assets
 ```
 
-## 🔧 Setup & Installation
+## Setup & Installation
 
 ### Prerequisites
 
@@ -162,7 +162,7 @@ playdoo/
    docker-compose -f docker-compose.prod.yml up -d
    ```
 
-## 🌐 Deployment
+## Deployment
 
 ### Google Cloud Platform
 
@@ -172,15 +172,7 @@ Use the provided deployment script:
 ./deploy-to-gcp.sh
 ```
 
-### Vercel
-
-The easiest way to deploy is using the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme):
-
-1. Connect your repository to Vercel
-2. Configure environment variables
-3. Deploy automatically on push to main branch
-
-## 📊 Key Features Breakdown
+## Key Features Breakdown
 
 ### Analytics System
 
@@ -214,7 +206,7 @@ The easiest way to deploy is using the [Vercel Platform](https://vercel.com/new?
 - Automated fraud detection
 - Appeal and resolution workflows
 
-## 🔐 Security Features
+## Security Features
 
 - **Fraud Detection**: AI-powered anomaly detection
 - **Activity Logging**: Comprehensive audit trails
@@ -222,38 +214,9 @@ The easiest way to deploy is using the [Vercel Platform](https://vercel.com/new?
 - **Data Validation**: Input validation and sanitization
 - **Rate Limiting**: API rate limiting and abuse prevention
 
-## 📈 Monitoring & Analytics
+## Monitoring & Analytics
 
 - **Grafana Dashboards**: Custom monitoring dashboards
 - **OpenTelemetry**: Distributed tracing and metrics
 - **Activity Logs**: Detailed user and system activity tracking
 - **Performance Monitoring**: Real-time performance insights
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 API Documentation
-
-API documentation is available via Swagger at `/api/docs` when running the development server.
-
-## 🔍 Learn More
-
-To learn more about the technologies used:
-
-- [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API
-- [Prisma Documentation](https://www.prisma.io/docs) - Database toolkit and ORM
-- [Tailwind CSS](https://tailwindcss.com/docs) - Utility-first CSS framework
-- [Shadcn/ui](https://ui.shadcn.com/) - Re-usable component library
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📞 Support
-
-For support and questions, please contact the development team or create an issue in the repository.
