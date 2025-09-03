@@ -1,7 +1,5 @@
 # Playdoo - Sports Facility Booking Platform: Odoo Hackathon 2025 Runners Up
 
-[https://youtu.be/2OSK_EYY56Q](https://youtu.be/2OSK_EYY56Q)
-
 Playdoo is a comprehensive sports facility booking platform that connects facility owners with users looking to book sports venues. The platform provides robust analytics, user management, and booking capabilities with AI-powered fraud detection.
 
 ## Features
