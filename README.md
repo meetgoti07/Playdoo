@@ -54,6 +54,7 @@ Playdoo is a comprehensive sports facility booking platform that connects facili
 ### Database
 
 - **PostgreSQL** - Primary database (via Prisma)
+- **Redis** - Session Caching
 
 ### DevOps & Deployment
 
@@ -62,6 +63,9 @@ Playdoo is a comprehensive sports facility booking platform that connects facili
 - **Google Cloud Platform** - Cloud deployment
 - **Nginx** - Reverse proxy and load balancing
 - **Grafana** - Monitoring and analytics
+- **Prometheus** - Server health
+- **Loki** - Logging 
+- **Tempo** - Traces
 
 ### Development Tools
 
