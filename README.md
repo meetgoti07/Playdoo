@@ -2,6 +2,7 @@
 
 Playdoo is a comprehensive sports facility booking platform that connects facility owners with users looking to book sports venues. The platform provides robust analytics, user management, and booking capabilities with AI-powered fraud detection.
 
+![High Level System Architecture Diagram](./Playdoo_system_architecture.png)
 ## Features
 
 ### For Users
