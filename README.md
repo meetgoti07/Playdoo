@@ -28,10 +28,8 @@ Playdoo is a comprehensive sports facility booking platform that connects facili
 
 ### Security & Monitoring
 
-- **AI-Powered Fraud Detection**: Advanced fraud prevention system
 - **Activity Logging**: Detailed audit trails
 - **Report System**: User and facility reporting capabilities
-- **CCTV Integration**: Security monitoring features
 
 ## Technology Stack
 
@@ -71,8 +69,7 @@ Playdoo is a comprehensive sports facility booking platform that connects facili
 - **ESLint** - Code linting
 - **TypeScript** - Static type checking
 - **pnpm** - Package manager
-- **Swagger** - API documentation
-
+  
 ## Project Structure
 
 ```
@@ -208,7 +205,6 @@ Use the provided deployment script:
 
 ## Security Features
 
-- **Fraud Detection**: AI-powered anomaly detection
 - **Activity Logging**: Comprehensive audit trails
 - **Authentication**: Secure user authentication system
 - **Data Validation**: Input validation and sanitization
@@ -217,6 +213,6 @@ Use the provided deployment script:
 ## Monitoring & Analytics
 
 - **Grafana Dashboards**: Custom monitoring dashboards
-- **OpenTelemetry**: Distributed tracing and metrics
+- **OpenTelemetry**: Tracing and metrics
 - **Activity Logs**: Detailed user and system activity tracking
 - **Performance Monitoring**: Real-time performance insights
